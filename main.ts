@@ -1,22 +1,26 @@
 import { mkdirSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 
-// One funny developer excuse line — single line, 1-200 chars (RULES.txt).
-const EXCUSE =
-  "It works on my machine — the bug only exists in production, staging, and every machine except mine.";
+const line = "Technically prod isn't down—I shipped a cost-saving patch that cut our AWS bill to $0, our revenue to $0, and my salary to $0, judging by the prepaid FedEx label HR just sent for my laptop.";
 
-// Char-count gate per RULES.txt: entry must be a single line of 1-200 chars.
-if (EXCUSE.length < 1 || EXCUSE.length > 200) {
-  throw new Error(`excuse must be 1-200 chars, got ${EXCUSE.length}`);
-}
-if (EXCUSE.includes("\n") || EXCUSE.includes("\r")) {
-  throw new Error("excuse must be a single line");
-}
-if (EXCUSE !== EXCUSE.trim()) {
-  throw new Error("excuse must not have leading or trailing whitespace");
-}
+const candidates = [
+  process.env.MAKEFUN_OUTPUT_DIR,
+  "/output",
+  join(process.cwd(), "output"),
+].filter((d): d is string => Boolean(d));
 
-const outPath = "/output/entry.txt";
-mkdirSync(dirname(outPath), { recursive: true });
-writeFileSync(outPath, EXCUSE + "\n", "utf8");
-console.log(`wrote ${EXCUSE.length} chars to ${outPath}`);
+let written = false;
+let lastError: unknown = null;
+for (const dir of candidates) {
+  try {
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, "entry.txt"), line, "utf8");
+    written = true;
+    break;
+  } catch (err) {
+    lastError = err;
+  }
+}
+if (!written) {
+  throw lastError ?? new Error("could not write entry.txt");
+}
