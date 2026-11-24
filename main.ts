@@ -1,6 +1,8 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
+// Writes Neon's revised entry line to the grader's output dir (Wave 1 revision).
+
 const line = "Technically prod isn't down—I shipped a cost-saving patch that cut our AWS bill to $0, our revenue to $0, and my salary to $0, judging by the prepaid FedEx label HR just sent for my laptop.";
 
 const candidates = [
